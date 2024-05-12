@@ -1,114 +1,391 @@
-﻿#include <iostream>
-#include "Lab4Exmaple.h"
-#include "ComplexVector.h"
-#include "ComplexMatrix.h"
-#include "MyAssoc.h"
+﻿//4.1
+#include <iostream>
 
+class VectorUInt {
+private:
+    unsigned int* data;
+    size_t size;
+    int codeError;
 
+public:
+    // Constructors
+    VectorUInt() : data(new unsigned int[1]), size(1), codeError(0) {
+        *data = 0;
+    }
 
-int mainExample1() {
+    VectorUInt(size_t newSize) : size(newSize), codeError(0) {
+        data = new unsigned int[size];
+        for (size_t i = 0; i < size; ++i) {
+            data[i] = 0;
+        }
+    }
 
-	/// <summary>
-	/// Задано : A,B,C,D,F  -  Вектори комплесних чисел 
-	///         a,b,c - комплексні числа.
-	/// Обчислити вираз : F = A+B-B*c+C/b+D*a        
-	/// </summary>
-	/// <returns></returns>
-	ComplexDouble a(1.0, 2), b, c;
-#if defined(_MSC_VER)
-	b._Val[_RE] = 2.3;
-	b._Val[_IM] = 3.1;
-	c = 4.1;
-#else 
-	b.real(2.3);
-	b.imag(3.1);
-	c.real(4.1);
-#endif	
-	ComplexDouble r(2.7, 2.1);
-	ComplexVector A(3,r), B(3,a), C(3,b), D(3), F(1);
-	D[0] = a; 
-	D[1] = b; 
-	D[2] = ComplexDouble(3.1, 1);
-	F[0] = (1, 3);
-	F[1] = 3.2;
-	cout <<" Begin data "  << endl;
-	cout << " a= " << a << " b= " << b << " c " << c << endl;
-	cout << " A  \n" << A;
-	cout << " B  \n" << B;
-	cout << " C  \n" << C;
-	cout << " D  \n" << D;
+    VectorUInt(size_t newSize, unsigned int initValue) : size(newSize), codeError(0) {
+        data = new unsigned int[size];
+        for (size_t i = 0; i < size; ++i) {
+            data[i] = initValue;
+        }
+    }
 
-	F = A + B - B * c + C / b + D * a;
+    VectorUInt(const VectorUInt& other) : size(other.size), codeError(other.codeError) {
+        data = new unsigned int[size];
+        for (size_t i = 0; i < size; ++i) {
+            data[i] = other.data[i];
+        }
+    }
 
-	
-	cout << " \n F =   \n" << F;
-	cout << " A  \n" << A;
-	cout << "++ A  \n" << ++A;
-	A++;
-	cout << " A ++ \n" << A;
-	return 2;
+    // Destructor
+    ~VectorUInt() {
+        delete[] data;
+    }
+
+    // Assignment operator
+    VectorUInt& operator=(const VectorUInt& other) {
+        if (this != &other) {
+            delete[] data;
+            size = other.size;
+            codeError = other.codeError;
+            data = new unsigned int[size];
+            for (size_t i = 0; i < size; ++i) {
+                data[i] = other.data[i];
+            }
+        }
+        return *this;
+    }
+
+    // Unary operators
+    VectorUInt operator++(int) { // Post-increment
+        VectorUInt temp(*this);
+        for (size_t i = 0; i < size; ++i) {
+            data[i]++;
+        }
+        return temp;
+    }
+
+    VectorUInt operator--(int) { // Post-decrement
+        VectorUInt temp(*this);
+        for (size_t i = 0; i < size; ++i) {
+            data[i]--;
+        }
+        return temp;
+    }
+
+    VectorUInt& operator++() { // Pre-increment
+        for (size_t i = 0; i < size; ++i) {
+            ++data[i];
+        }
+        return *this;
+    }
+
+    VectorUInt& operator--() { // Pre-decrement
+        for (size_t i = 0; i < size; ++i) {
+            --data[i];
+        }
+        return *this;
+    }
+
+    bool operator!() const { // Logical NOT
+        return size == 0;
+    }
+
+    VectorUInt operator~() const { // Bitwise NOT
+        VectorUInt result(*this);
+        for (size_t i = 0; i < size; ++i) {
+            result.data[i] = ~result.data[i];
+        }
+        return result;
+    }
+
+    VectorUInt operator-() const { // Unary minus
+        VectorUInt result(*this);
+        for (size_t i = 0; i < size; ++i) {
+            result.data[i] = -result.data[i];
+        }
+        return result;
+    }
+
+    // Compound assignment operators
+    VectorUInt& operator+=(const VectorUInt& other) {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+        }
+        else {
+            for (size_t i = 0; i < size; ++i) {
+                data[i] += other.data[i];
+            }
+        }
+        return *this;
+    }
+
+    VectorUInt& operator-=(const VectorUInt& other) {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+        }
+        else {
+            for (size_t i = 0; i < size; ++i) {
+                data[i] -= other.data[i];
+            }
+        }
+        return *this;
+    }
+
+    VectorUInt& operator*=(unsigned int scalar) {
+        for (size_t i = 0; i < size; ++i) {
+            data[i] *= scalar;
+        }
+        return *this;
+    }
+
+    VectorUInt& operator/=(unsigned int divisor) {
+        if (divisor == 0) {
+            codeError = 2; // Error: division by zero
+        }
+        else {
+            for (size_t i = 0; i < size; ++i) {
+                data[i] /= divisor;
+            }
+        }
+        return *this;
+    }
+
+    VectorUInt& operator%=(unsigned int divisor) {
+        if (divisor == 0) {
+            codeError = 2; // Error: division by zero
+        }
+        else {
+            for (size_t i = 0; i < size; ++i) {
+                data[i] %= divisor;
+            }
+        }
+        return *this;
+    }
+
+    // Binary arithmetic operators
+    VectorUInt operator+(const VectorUInt& other) const {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+            return VectorUInt();
+        }
+        else {
+            VectorUInt result(*this);
+            for (size_t i = 0; i < size; ++i) {
+                result.data[i] += other.data[i];
+            }
+            return result;
+        }
+    }
+
+    VectorUInt operator-(const VectorUInt& other) const {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+            return VectorUInt();
+        }
+        else {
+            VectorUInt result(*this);
+            for (size_t i = 0; i < size; ++i) {
+                result.data[i] -= other.data[i];
+            }
+            return result;
+        }
+    }
+
+    VectorUInt operator*(unsigned int scalar) const {
+        VectorUInt result(*this);
+        for (size_t i = 0; i < size; ++i) {
+            result.data[i] *= scalar;
+        }
+        return result;
+    }
+
+    VectorUInt operator/(unsigned int divisor) const {
+        if (divisor == 0) {
+            codeError = 2; // Error: division by zero
+            return VectorUInt();
+        }
+        else {
+            VectorUInt result(*this);
+            for (size_t i = 0; i < size; ++i) {
+                result.data[i] /= divisor;
+            }
+            return result;
+        }
+    }
+
+    VectorUInt operator%(unsigned int divisor) const {
+        if (divisor == 0) {
+            codeError = 2; // Error: division by zero
+            return VectorUInt();
+        }
+        else {
+            VectorUInt result(*this);
+            for (size_t i = 0; i < size; ++i) {
+                result.data[i] %= divisor;
+            }
+            return result;
+        }
+    }
+
+    // Bitwise binary operators
+    VectorUInt operator|(const VectorUInt& other) const {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+            return VectorUInt();
+        }
+        else {
+            VectorUInt result(*this);
+            for (size_t i = 0; i < size; ++i) {
+                result.data[i] |= other.data[i];
+            }
+            return result;
+        }
+    }
+
+    VectorUInt operator^(const VectorUInt& other) const {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+            return VectorUInt();
+        }
+        else {
+            VectorUInt result(*this);
+            for (size_t i = 0; i < size; ++i) {
+                result.data[i] ^= other.data[i];
+            }
+            return result;
+        }
+    }
+
+    VectorUInt operator&(const VectorUInt& other) const {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+            return VectorUInt();
+        }
+        else {
+            VectorUInt result(*this);
+            for (size_t i = 0; i < size; ++i) {
+                result.data[i] &= other.data[i];
+            }
+            return result;
+        }
+    }
+
+    // Indexing operator
+    unsigned int& operator[](size_t index) {
+        if (index >= size) {
+            codeError = 3; // Error: index out of bounds
+            return data[size - 1]; // Return the last element
+        }
+        else {
+            return data[index];
+        }
+    }
+
+    // Comparison operators
+    bool operator==(const VectorUInt& other) const {
+        if (size != other.size) {
+            codeError = 1; // Error: sizes are different
+            return false;
+        }
+        else {
+            for (size_t i = 0; i < size; ++i) {
+                if (data[i] != other.data[i]) return false;
+            }
+            return true;
+        }
+    }
+
+    bool operator!=(const VectorUInt& other) const {
+        return !(*this == other);
+    }
+
+    // Utility methods
+    void print() const {
+        for (size_t i = 0; i < size; ++i) {
+            std::cout << data[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Getters
+    size_t getSize() const { return size; }
+    int getErrorCode() const { return codeError; }
+};
+
+int main() {
+    VectorUInt vec1(5);
+    VectorUInt vec2(5, 10);
+    VectorUInt vec3(vec1); // Copy constructor
+
+    vec1.print(); // Output: 0 0 0 0 0
+    vec2.print(); // Output: 10 10 10 10 10
+    vec3.print(); // Output: 0 0 0 0 0
+
+    vec1[2] = 15; // Modify element at index 2
+
+    std::cout << "Size of vec1: " << vec1.getSize() << std::endl;
+    std::cout << "Error code of vec1: " << vec1.getErrorCode() << std::endl;
+
+    VectorUInt vec4 = vec1 + vec2; // Addition
+
+    vec4.print(); // Output: 10 10 25 10 10
+
+    return 0;
 }
 
 
+//4.2
+#include <iostream>
+#include <string>
+#include <map>
 
-/// <summary>
-	/// Задано : A,B,C,D,F  -  Матриці комплесних чисел
-	///          a,b,c  -  Вектори комплесних чисел 
-	///          _a,_b,_c - комплексні числа.
-	/// Обчислити вираз : F = A+B*_a-B*_c+C/_b; 
-	///                   c = F*a + D*b         
-	/// </summary>
-	/// <returns></returns>
+class BankAccountInfo {
+private:
+    std::map<std::string, std::string> data;
 
-int mainExample2() {
-	ComplexMatrix A(5),  B(5), C(5), D(5), F(5);
-	ComplexVector a(5), b(5), c(5);
-	ComplexDouble _a(3.2, 5), _b(1, 2), _c = RandComplexDouble();
-	
-		A.RandComplexMatrix();
-		B.RandComplexMatrix();
-		C.RandComplexMatrix();
-		D.RandComplexMatrix();
-		a.RandComplexVector();
-		b.RandComplexVector();
-		c.RandComplexVector();
+public:
+    void addInfo(const std::string& key, const std::string& value) {
+        data[key] = value;
+    }
 
-		cout << endl;
-		cout << "Matrix A \n" << A;
-		cout << "Matrix B \n" << B;
-		cout << "Matrix C \n" << C;
-		cout << "Matrix D \n" << D;
-		cout << endl;
-		cout << "Vector a \n" << a;
-		cout << "Vector b \n" << b;
-		cout << "Vector c \n" << c;
-	
-	/// Обчислити вираз : F = A+B*_a-B*_c+C/_b; 
-	///                   c = F*a + D*b     
-	F = A + B * _a - B * _c + C / _b;
-	cout << "Matrix F \n" << F;
-	c = F * a + D * b;
-	cout << "Vector c \n" << c;
+    std::string& operator[](const std::string& key) {
+        if (data.find(key) != data.end()) {
+            return data[key];
+        }
+        else {
+            static std::string error = "CodeError";
+            return error;
+        }
+    }
 
-	
-	return 3;
+    friend std::istream& operator>>(std::istream& input, BankAccountInfo& obj) {
+        std::string value;
+        std::cout << "Enter surname: ";
+        input >> value;
+        obj.addInfo("Surname", value);
+        std::cout << "Enter first name: ";
+        input >> value;
+        obj.addInfo("First Name", value);
+        std::cout << "Enter patronymic: ";
+        input >> value;
+        obj.addInfo("Patronymic", value);
+        return input;
+    }
+
+    friend std::ostream& operator<<(std::ostream& output, const BankAccountInfo& obj) {
+        output << "Surname: " << obj.data.at("Surname") << std::endl;
+        output << "First Name: " << obj.data.at("First Name") << std::endl;
+        output << "Patronymic: " << obj.data.at("Patronymic") << std::endl;
+        return output;
+    }
+};
+
+int main() {
+    BankAccountInfo info;
+
+    std::cout << "Enter Bank Account Information:" << std::endl;
+    std::cin >> info;
+
+    std::cout << "Bank Account Information:" << std::endl;
+    std::cout << info << std::endl;
+
+    return 0;
 }
-int mainExample3() {
-	cout << " End begin \n";
-	uint Flight[5] = { 12,32,23,43,43 };
-	MyTime MTime[5] = { {9,10}, {10,30}, {10,30}, {10,30} , {15,35} };
-	MyAssoc dbase(5, Flight, MTime);
-	dbase.TableFlight();
-	MyTime r = { 10,30 }, ro;
-	uint fli = 32;
-	ro = dbase[fli];
-	cout << " Test : MyTime operator[](uint&s  )  " << "Flight " << fli << " time   " <<
-		ro << endl;
-	cout << " Test : uint	operator[](MyTime&s)  " << " time  " << r << " light  " <<
-		dbase[r] << endl;
-	cout << " Flight with time :   9   to  11 \n";
-	dbase(9, 11);
-	cout << " End test \n";
-	return 4;
-}
-
