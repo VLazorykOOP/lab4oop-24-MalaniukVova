@@ -333,10 +333,6 @@ int main() {
 
 
 //4.2
-#include <iostream>
-#include <string>
-#include <map>
-
 class BankAccountInfo {
 private:
     std::map<std::string, std::string> data;
@@ -356,36 +352,26 @@ public:
         }
     }
 
-    friend std::istream& operator>>(std::istream& input, BankAccountInfo& obj) {
-        std::string value;
-        std::cout << "Enter surname: ";
-        input >> value;
-        obj.addInfo("Surname", value);
-        std::cout << "Enter first name: ";
-        input >> value;
-        obj.addInfo("First Name", value);
-        std::cout << "Enter patronymic: ";
-        input >> value;
-        obj.addInfo("Patronymic", value);
-        return input;
-    }
+    friend std::istream& operator>>(std::istream& input, BankAccountInfo& obj);
 
-    friend std::ostream& operator<<(std::ostream& output, const BankAccountInfo& obj) {
-        output << "Surname: " << obj.data.at("Surname") << std::endl;
-        output << "First Name: " << obj.data.at("First Name") << std::endl;
-        output << "Patronymic: " << obj.data.at("Patronymic") << std::endl;
-        return output;
-    }
+    friend std::ostream& operator<<(std::ostream& output, const BankAccountInfo& obj);
 };
-
-int main() {
-    BankAccountInfo info;
-
-    std::cout << "Enter Bank Account Information:" << std::endl;
-    std::cin >> info;
-
-    std::cout << "Bank Account Information:" << std::endl;
-    std::cout << info << std::endl;
-
-    return 0;
+std::ostream& operator<<(std::ostream& output, const BankAccountInfo& obj) {
+    output << "Surname: " << obj.data.at("Surname") << std::endl;
+    output << "First Name: " << obj.data.at("First Name") << std::endl;
+    output << "Patronymic: " << obj.data.at("Patronymic") << std::endl;
+    return output;
+}
+std::istream& operator>>(std::istream& input, BankAccountInfo& obj) {
+    std::string value;
+    std::cout << "Enter surname: ";
+    input >> value;
+    obj.addInfo("Surname", value);
+    std::cout << "Enter first name: ";
+    input >> value;
+    obj.addInfo("First Name", value);
+    std::cout << "Enter patronymic: ";
+    input >> value;
+    obj.addInfo("Patronymic", value);
+    return input;
 }
